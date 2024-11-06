@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+/node_modules
+/src/main/bundles
+/src/main/frontend/generated
+/.mvn
+package-lock.json
+*.ts
+tsconfig.json
