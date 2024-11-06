@@ -1,0 +1,48 @@
+name: Docker Image CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/*' # Déclenche également la CI pour les branches de release
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: kpanuiczka/BEER-KINGDOM
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout du code source
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Configuration de Java (JDK 21)
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      # Construction de l'application avec Maven
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      # Connexion au registre Docker
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3.3.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Construction de l'image Docker
+      - name: Build Docker Image
+        run: |
+          docker build . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      # Push de l'image Docker vers Docker Hub
+      - name: Push Docker Image
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
