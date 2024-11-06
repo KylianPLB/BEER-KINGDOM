@@ -1,0 +1,4 @@
+2024-11-05 14:26:41.304448+01:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Erreur de syntaxe dans l'instruction SQL "SELECT * [*]BIERE"
+Syntax error in SQL statement "SELECT * [*]BIERE"; SQL statement:
+SELECT * BIERE [42000-224]
