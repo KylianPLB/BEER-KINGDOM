@@ -4,15 +4,15 @@ on:
   push:
     branches:
       - main
-      
+      - 'release/*' # Ça déclenchera aussi la CI pour les branches de release
 
 env:
-  REGISTRY: registry.sio.jbdelasalle.com
+  REGISTRY: docker.io
   IMAGE_NAME: kpanuiczka/BEER-KINGDOM
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       # Checkout du code source
@@ -25,10 +25,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
 
       # Construction de l'application avec Maven
       - name: Build with Maven
-        run: mvn clean package -DskipTests
+        run: mvn clean install -DskipTests
 
       # Connexion au registre Docker
       - name: Log in to Docker Hub
@@ -38,12 +39,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Construction de l'image Docker
-      - name: Build Docker Image
+      # Ajouter le certificat de confiance pour le registre
+      - name: Add registry certificate
         run: |
-          docker build . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-      # Push de l'image Docker vers Docker Hub
-      - name: Push Docker Image
-        run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          echo "${{ secrets.DOMAINE_CERTIFICAT }}" > /usr/local/share/ca-certificates/registry_cert.crt
+          sudo update-ca-certificates
