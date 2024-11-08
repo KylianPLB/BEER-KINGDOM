@@ -4,15 +4,14 @@ on:
   push:
     branches:
       - main
-      - 'release/*' # Ça déclenchera aussi la CI pour les branches de release
 
 env:
-  REGISTRY: sio.jbdelasalle.com
+  REGISTRY: registry.sio.jbdelasalle.com
   IMAGE_NAME: kpanuiczka/BEER-KINGDOM
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       # Checkout du code source
@@ -23,24 +22,39 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
+          distribution: "temurin"
+          java-version: "21"
+
+      # Installation du certificat du registre Docker privé
+      - name: Install registry certificate
+        run: |
+          echo "$REGISTRY_CERTIFICATE" | sudo tee /usr/local/share/ca-certificates/registry-cert.crt
+          sudo update-ca-certificates
+        env:
+          REGISTRY_CERTIFICATE: ${{ secrets.DOMAINE_CERTIFICAT }}
+
+      # Redémarrage de Docker pour appliquer le certificat
+      - name: Restart Docker to apply certificate
+        run: sudo systemctl restart docker
 
       # Construction de l'application avec Maven
       - name: Build with Maven
-        run: mvn clean install -DskipTests
+        run: mvn clean package -DskipTests
 
       # Connexion au registre Docker
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3.3.0
+      - name: Log in to Docker Registry
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Ajouter le certificat de confiance pour le registre
-      - name: Add registry certificate
+      # Construction de l'image Docker
+      - name: Build Docker Image
         run: |
-          echo "${{ secrets.DOMAINE_CERTIFICAT }}" > /usr/local/share/ca-certificates/registry_cert.crt
-          sudo update-ca-certificates
+          docker build . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      # Push de l'image Docker vers le registre
+      - name: Push Docker Image
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
