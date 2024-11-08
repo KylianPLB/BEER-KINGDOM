@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: registry.sio.jbdelasalle.com
-  IMAGE_NAME: kpanuiczka/BEER-KINGDOM
+  IMAGE_NAME: kpanuiczka/beer-kingdom
 
 jobs:
   build-and-push:
