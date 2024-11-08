@@ -7,7 +7,7 @@ on:
       - 'release/*' # Déclenche également la CI pour les branches de release
 
 env:
-  REGISTRY: docker.io
+  REGISTRY: registry.sio.jbdelasalle.com
   IMAGE_NAME: kpanuiczka/BEER-KINGDOM
 
 jobs:
