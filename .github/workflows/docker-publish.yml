@@ -63,4 +63,7 @@ jobs:
         run: |
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-      
+      # Step pour appeler le webhook
+      - name: Trigger Portainer Webhook
+        run: |
+          curl -X POST https://portainer.sio.jbdelasalle.com/api/webhooks/13ef6fa4-5832-4833-860d-bf14a6005957
