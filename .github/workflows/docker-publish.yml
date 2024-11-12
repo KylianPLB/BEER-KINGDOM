@@ -31,7 +31,7 @@ jobs:
           echo "$REGISTRY_CERTIFICATE" | sudo tee /usr/local/share/ca-certificates/registry-cert.crt
           sudo update-ca-certificates
         env:
-          REGISTRY_CERTIFICATE: ${{ secrets.DOMAINE_CERTIFICAT }}
+          REGISTRY_CERTIFICATE: ${{ secrets.CERT_SIO }}
 
       # Redémarrage de Docker pour appliquer le certificat
       - name: Restart Docker to apply certificate
@@ -40,6 +40,10 @@ jobs:
       # Construction de l'application avec Maven
       - name: Build with Maven
         run: mvn clean package -DskipTests
+
+      # Vérification du contenu du dossier target/
+      - name: List Maven target directory
+        run: ls -l target/
 
       # Connexion au registre Docker
       - name: Log in to Docker Registry
@@ -58,3 +62,5 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      
