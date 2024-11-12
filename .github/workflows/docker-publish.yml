@@ -31,7 +31,7 @@ jobs:
           echo "$REGISTRY_CERTIFICATE" | sudo tee /usr/local/share/ca-certificates/registry-cert.crt
           sudo update-ca-certificates
         env:
-          REGISTRY_CERTIFICATE: ${{ secrets.CERT_SIO }}
+          REGISTRY_CERTIFICATE: ${{ secrets.DOMAINE_CERTIFICAT }}
 
       # Redémarrage de Docker pour appliquer le certificat
       - name: Restart Docker to apply certificate
