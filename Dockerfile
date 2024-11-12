@@ -1,13 +1,14 @@
-# Étape 1 : Construire l'application
-FROM maven:3.9.2-eclipse-temurin-21 AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests
+# Utiliser une image de base Java
+FROM openjdk:21-jdk-slim
 
-# Étape 2 : Construire l'image à partir de l'application packagée
-FROM eclipse-temurin:21-jdk
+# Définir le répertoire de travail
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+
+# Copier le JAR généré avec le nom correct
+COPY target/app.jar app.jar
+
+# Exposer le port sur lequel l'application écoute
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Définir la commande de démarrage de l'application
+CMD ["java", "-jar", "app.jar"]
